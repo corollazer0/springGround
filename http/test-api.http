@@ -22,7 +22,7 @@ Content-Type: application/json
   "name": "조재영"
 }
 
-###
+### jsonString으로 데이터 전달 후 서버에서 Controller에서 Map으로 처리하기
 POST http://localhost:8080/api/jsonobject/maptojsonstring
 Content-Type: application/json
 
@@ -30,8 +30,8 @@ Content-Type: application/json
   "cusno": "322110113",
   "name": "조재영"
 }
-###
+### json으로 데이터 전달 후 서버에서 Controller에서 String으로 처리하기
 POST http://localhost:8080/api/jsonobject/jsonstringtomap
 Content-Type: application/json
 
-{"cusno":"322110113","name":"조재영"}
+"{\"cusno\":\"322110113\",\"name\":\"조재영\"}"

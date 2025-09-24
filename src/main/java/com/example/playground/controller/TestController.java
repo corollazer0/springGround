@@ -97,4 +97,48 @@ String jsonString = "{\"user\":{\"name\":\"test\",\"details\":{\"age\":30}}}";
 JsonNode rootNode = objectMapper.readTree(jsonString);
 String name = rootNode.get("user").get("name").asText(); // "test"
 int age = rootNode.path("user").path("details").path("age").asInt(); // 30
+*/
+
+/*
+Kafka 설정
+spring:
+  kafka:
+    producer:
+      # 메시지 키는 보통 String을 사용합니다.
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # 메시지 값(Value)은 JsonSerializer를 사용해 자동으로 JSON 변환!
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+ASIS
+@Service
+public class ManualKafkaProducer {
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public void sendLog(LogDto logDto) throws JsonProcessingException {
+        // 1. DTO를 JSON 문자열로 수동 변환
+        String jsonString = mapper.writeValueAsString(logDto);
+
+        // 2. 변환된 문자열을 전송
+        kafkaTemplate.send("logs", jsonString);
+    }
+}
+
+TOBE
+@Service
+public class AutoKafkaProducer {
+
+    // KafkaTemplate의 Value 타입을 DTO 객체로 지정합니다.
+    private final KafkaTemplate<String, LogDto> kafkaTemplate;
+
+    // ... 생성자 생략 ...
+
+    public void sendLog(LogDto logDto) {
+        // DTO 객체를 그냥 그대로 전송!
+        // Spring이 알아서 JSON으로 변환해줍니다.
+        kafkaTemplate.send("logs", logDto);
+    }
+}
  */
