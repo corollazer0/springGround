@@ -22,12 +22,13 @@ public class TestController {
 
     private final TestService testService;
     private final DtoService dtoService;
-    public TestController(TestService testService, DtoService dtoService) {
+    private final ObjectMapper mapper;
+    public TestController(TestService testService, DtoService dtoService, ObjectMapper mapper) {
         this.testService = testService;
         this.dtoService = dtoService;
+        this.mapper = mapper;
     }
 
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/api")
     public String api(@RequestBody Map<String, Object> requestBody) {
@@ -57,7 +58,7 @@ public class TestController {
     @PostMapping("/api/jsonobject/maptojson")
     public ResponseEntity<ApiResponse<String>> apimaptojson(@RequestBody LombokMutableDto lombokMutableDto) throws JsonProcessingException {
 
-        String jsonString = objectMapper.writeValueAsString(lombokMutableDto);
+        String jsonString = mapper.writeValueAsString(lombokMutableDto);
         log.info("apimaptojson API {}", jsonString);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(jsonString));
@@ -67,7 +68,7 @@ public class TestController {
     @PostMapping("/api/jsonobject/jsontomap")
     public ResponseEntity<ApiResponse<Map<String, Object>>> apijsontomap(@RequestBody String jsonString) throws JsonProcessingException {
 
-        Map<String, Object> dataMap = objectMapper.readValue(jsonString, new TypeReference<>() {});
+        Map<String, Object> dataMap = mapper.readValue(jsonString, new TypeReference<>() {});
         log.info("jsontomap API {}", dataMap.toString());
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(dataMap));
