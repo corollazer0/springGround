@@ -1,0 +1,23 @@
+### TEST API
+POST http://localhost:8080/api
+Content-Type: application/json
+
+{"test" : "1"}
+
+### mutable DTO
+POST http://localhost:8080/api/lombok/immutable
+Content-Type: application/json
+
+{
+  "cusno": "322110113",
+  "name": "조재영"
+}
+
+### immutable DTO
+POST http://localhost:8080/api/lombok/mutable
+Content-Type: application/json
+
+{
+  "cusno": "322110113",
+  "name": "조재영"
+}
