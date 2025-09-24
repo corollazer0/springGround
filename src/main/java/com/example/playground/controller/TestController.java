@@ -55,8 +55,8 @@ public class TestController {
     }
     //HashMap to JSON Serialization for Server to Server Data Send
     //map과 objectMapper의 writeValueAsString를 사용한다.
-    @PostMapping("/api/jsonobject/maptojson")
-    public ResponseEntity<ApiResponse<String>> apimaptojson(@RequestBody LombokMutableDto lombokMutableDto) throws JsonProcessingException {
+    @PostMapping("/api/jsonobject/maptojsonstring")
+    public ResponseEntity<ApiResponse<String>> maptojsonstring(@RequestBody LombokMutableDto lombokMutableDto) throws JsonProcessingException {
 
         String jsonString = mapper.writeValueAsString(lombokMutableDto);
         log.info("apimaptojson API {}", jsonString);
@@ -65,8 +65,8 @@ public class TestController {
     }
 
     //JSON to Map DeSerialization
-    @PostMapping("/api/jsonobject/jsontomap")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> apijsontomap(@RequestBody String jsonString) throws JsonProcessingException {
+    @PostMapping("/api/jsonobject/jsonstringtomap")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> jsonstringtomap(@RequestBody String jsonString) throws JsonProcessingException {
 
         Map<String, Object> dataMap = mapper.readValue(jsonString, new TypeReference<>() {});
         log.info("jsontomap API {}", dataMap.toString());

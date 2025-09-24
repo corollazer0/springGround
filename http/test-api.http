@@ -21,3 +21,17 @@ Content-Type: application/json
   "cusno": "322110113",
   "name": "조재영"
 }
+
+###
+POST http://localhost:8080/api/jsonobject/maptojsonstring
+Content-Type: application/json
+
+{
+  "cusno": "322110113",
+  "name": "조재영"
+}
+###
+POST http://localhost:8080/api/jsonobject/jsonstringtomap
+Content-Type: application/json
+
+{"cusno":"322110113","name":"조재영"}
