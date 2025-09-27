@@ -67,13 +67,13 @@ class DataMaskingServiceTest {
         String input = "{MIMEIN15A0_IN_MST=" +
                             "{MIMEIN15A0_IN=" +
                                 "{cd_cusno=322110113, " +
-                                "MIMEIN15A0_subArray01=[{cd_no=12341234, mbepay_dsc=1}, {cd_no=56785678, mbepay_dsc=1}, {cd_no=56785678, mbepay_dsc=1}]}}" +
-                            ", pfmidata={std_glbl_id=238489238402, svc_id=MIMEIN15A0}, sync_dsc=R}}";
+                                 "MIMEIN15A0_subArray01=[{cd_no=12341234, mbepay_dsc=1}, {cd_no=56785678, mbepay_dsc=1}, {cd_no=56785678, mbepay_dsc=1}]}}" +
+                            ", pfmidata={std_glbl_id=238489238402, svc_id=MIMEIN15A0, sync_dsc=R}}";
         String expected = "{MIMEIN15A0_IN_MST=" +
                 "{MIMEIN15A0_IN=" +
                 "{cd_cusno=322110113, " +
                  "MIMEIN15A0_subArray01=[{cd_no=<Masked>, mbepay_dsc=1}, {cd_no=<Masked>, mbepay_dsc=1}, {cd_no=<Masked>, mbepay_dsc=1}]}}" +
-                ", pfmidata={std_glbl_id=238489238402, svc_id=MIMEIN15A0}, sync_dsc=R}}";
+                ", pfmidata={std_glbl_id=238489238402, svc_id=MIMEIN15A0, sync_dsc=<Masked>}}";
         String actual = dataMaskingService.maskSensitiveData(input);
         assertThat(actual).isEqualToIgnoringWhitespace(expected);
     }

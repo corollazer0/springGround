@@ -35,8 +35,8 @@ class DataProcessingControllerTest {
     @DisplayName("외부 데이터를 가져와 성공적으로 마스킹 처리 후 응답한다")
     void getAndMaskData_Success() throws Exception {
         // given - 테스트를 위한 사전 조건 설정
-        String originalData = "[abc=secret, xyz=password, test=value]";
-        String maskedData = "[abc=<Masked>, xyz=<Masked>, test=value]";
+        String originalData = "[{cd_no=secret}, {xyz=password}, {test=value}]";
+        String maskedData = "[{cd_no=<Masked>}, {xyz=<Masked>}, {test=value}]";
 
         // externalApiService.fetchDataFromServer() 메소드가 호출되면, 실제 로직을 수행하는 대신
         // 미리 준비된 originalData 문자열을 반환하도록 설정

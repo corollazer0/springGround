@@ -14,7 +14,7 @@ public class DataMaskingServiceImpl implements DataMaskingService {
 
     private static final String MASKED_VALUE = "<Masked>";
     // 테스트 케이스를 통과하기 위해 'cd_no' 추가
-    private static final Set<String> SENSITIVE_KEYS = new HashSet<>(Arrays.asList("abc", "xyz", "cd_No", "cd_no"));
+    private static final Set<String> SENSITIVE_KEYS = new HashSet<>(Arrays.asList("abc", "xyz", "cd_No", "cd_no", "sync_dsc"));
 
     @Override
     public String maskSensitiveData(String data) {
