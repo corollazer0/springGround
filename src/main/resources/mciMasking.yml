@@ -1,0 +1,17 @@
+# masking.yml
+masking:
+  # mciId를 Key로, 하위에 마스킹할 Path 목록을 List로 정의
+  mappings:
+    "NCDP_MIMEIN10A0": # Key (MCIId)
+      - jsonPath: "MIMEIN_IN_MST.MIMEIN_IN.rlno"
+        maskingType: "type_rlno"
+      - jsonPath: "MIMEIN_IN_MST.MIMEIN_IN.custNm"
+        maskingType: "type_name"
+
+    "NCDP_CUSAFT10A0": # Key (MCIId)
+      - jsonPath: "CUSAFT_IN.CUSAFT_IN_SUB.acno"
+        maskingType: "type_account"
+
+    "NCDP_ANOTHER_ID": # 예: 룰이 하나인 경우
+      - jsonPath: "SOME.OTHER.PATH.field"
+        maskingType: "type_email"

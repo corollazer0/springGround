@@ -1,0 +1,12 @@
+### masking NCDP_MIMEIN10A0
+POST http://localhost:8080/api/maskingTest
+Content-Type: application/json
+
+{
+  "MIMEIN_IN_MST": {
+    "MIMEIN_IN": {
+      "rlno": "9007021234567"
+    }
+  }
+}
+
