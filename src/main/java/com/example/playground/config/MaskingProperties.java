@@ -17,6 +17,7 @@ public class MaskingProperties {
     // Key: String (MCIId), Value: List<PathRule> (마스킹 룰 리스트)
     private Map<String, List<PathRule>> mappings = new HashMap<>();
 
+
     @Getter
     @Setter
     public static class PathRule { // 4. 이름 변경 (mciId가 없으므로)
