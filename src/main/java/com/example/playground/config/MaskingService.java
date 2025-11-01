@@ -74,7 +74,17 @@ public class MaskingService {
             // 다음 레벨의 Map으로 재귀 호출
             maskRecursive((Map<String, Object>) value, keys, index + 1, maskingType);
         }
-        // (Map이 아닌데 경로가 더 있다면 무시. 예: List 등은 현재 로직에서 제외됨)
+        // 4. List 타입인 경우 처리
+        else if (value instanceof List) {
+            List<?> list = (List<?>) value;
+            // List 내부의 각 요소에 대해 재귀적으로 마스킹 적용
+            for (Object item : list) {
+                if (item instanceof Map) {
+                    maskRecursive((Map<String, Object>) item, keys, index + 1, maskingType);
+                }
+            }
+        }
+        // (Map도 List도 아닌데 경로가 더 있다면 무시)
     }
 
 
