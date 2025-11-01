@@ -95,4 +95,176 @@ class MaskingServiceTest {
         assertThat(innerMap.get("rlno")).isEqualTo(9007021234567L); // Long 타입 그대로
         assertThat(innerMap.get("custNm")).isEqualTo("홍길동");
     }
+
+    @Test
+    @DisplayName("List 타입 내부의 Map에 대해 마스킹이 적용되어야 한다")
+    void applyMasking_withListType() {
+        // 1. List를 포함한 테스트 데이터 생성
+        Map<String, Object> testData = new HashMap<>();
+        Map<String, Object> cusaftIn = new HashMap<>();
+
+        // CUSAFT_IN_SUB를 List로 구성
+        List<Map<String, Object>> cusaftInSubList = Arrays.asList(
+            new HashMap<String, Object>() {{
+                put("acno", "1234567890");
+                put("name", "김철수");
+            }},
+            new HashMap<String, Object>() {{
+                put("acno", "0987654321");
+                put("name", "이영희");
+            }}
+        );
+
+        cusaftIn.put("CUSAFT_IN_SUB", cusaftInSubList);
+        testData.put("CUSAFT_IN", cusaftIn);
+
+        // 2. 마스킹 룰 준비
+        String mciId = "NCDP_CUSAFT10A0";
+        MaskingProperties.PathRule rule = new MaskingProperties.PathRule();
+        rule.setJsonPath("CUSAFT_IN.CUSAFT_IN_SUB.acno");
+        rule.setMaskingType("type_account");
+
+        List<MaskingProperties.PathRule> rules = Arrays.asList(rule);
+
+        // 3. Mocking 설정
+        when(maskingManager.getMaskingRules(mciId)).thenReturn(rules);
+
+        // 4. 테스트 대상 메소드 실행
+        maskingService.applyMasking(mciId, testData);
+
+        // 5. 결과 검증
+        Map<String, Object> cusaftInResult = (Map<String, Object>) testData.get("CUSAFT_IN");
+        List<Map<String, Object>> listResult = (List<Map<String, Object>>) cusaftInResult.get("CUSAFT_IN_SUB");
+
+        // List의 모든 요소에 마스킹이 적용되었는지 확인
+        assertThat(listResult.get(0).get("acno")).isEqualTo("<Protected_Mci_Data>");
+        assertThat(listResult.get(0).get("name")).isEqualTo("김철수"); // 룰이 없는 필드는 그대로
+
+        assertThat(listResult.get(1).get("acno")).isEqualTo("<Protected_Mci_Data>");
+        assertThat(listResult.get(1).get("name")).isEqualTo("이영희"); // 룰이 없는 필드는 그대로
+    }
+
+    @Test
+    @DisplayName("빈 List에 대해 예외가 발생하지 않아야 한다")
+    void applyMasking_withEmptyList() {
+        // 1. 빈 List를 포함한 테스트 데이터 생성
+        Map<String, Object> testData = new HashMap<>();
+        Map<String, Object> cusaftIn = new HashMap<>();
+        cusaftIn.put("CUSAFT_IN_SUB", Collections.emptyList());
+        testData.put("CUSAFT_IN", cusaftIn);
+
+        // 2. 마스킹 룰 준비
+        String mciId = "NCDP_CUSAFT10A0";
+        MaskingProperties.PathRule rule = new MaskingProperties.PathRule();
+        rule.setJsonPath("CUSAFT_IN.CUSAFT_IN_SUB.acno");
+        rule.setMaskingType("type_account");
+
+        List<MaskingProperties.PathRule> rules = Arrays.asList(rule);
+
+        // 3. Mocking 설정
+        when(maskingManager.getMaskingRules(mciId)).thenReturn(rules);
+
+        // 4. 테스트 대상 메소드 실행 - 예외가 발생하지 않아야 함
+        maskingService.applyMasking(mciId, testData);
+
+        // 5. 결과 검증 - List가 여전히 비어있어야 함
+        Map<String, Object> cusaftInResult = (Map<String, Object>) testData.get("CUSAFT_IN");
+        List<?> listResult = (List<?>) cusaftInResult.get("CUSAFT_IN_SUB");
+        assertThat(listResult).isEmpty();
+    }
+
+    @Test
+    @DisplayName("common 룰과 mciId별 룰이 모두 적용되어야 한다")
+    void applyMasking_withCommonAndSpecificRules() {
+        // 1. common 필드와 mciId별 필드를 포함한 테스트 데이터 생성
+        Map<String, Object> testData = new HashMap<>();
+
+        // common 룰 대상 필드 (pfmidata.rlno, pfminpt.rlno)
+        Map<String, Object> pfmidata = new HashMap<>();
+        pfmidata.put("rlno", "1234567890123");
+
+        Map<String, Object> pfminpt = new HashMap<>();
+        pfminpt.put("rlno", "9876543210987");
+
+        testData.put("pfmidata", pfmidata);
+        testData.put("pfminpt", pfminpt);
+
+        // mciId별 룰 대상 필드
+        Map<String, Object> mimeinInMst = new HashMap<>();
+        Map<String, Object> mimeinIn = new HashMap<>();
+        mimeinIn.put("custNm", "김철수");
+        mimeinInMst.put("MIMEIN_IN", mimeinIn);
+        testData.put("MIMEIN_IN_MST", mimeinInMst);
+
+        // 2. common 룰 + mciId별 룰 준비
+        String mciId = "NCDP_MIMEIN10A0";
+
+        // common 룰
+        MaskingProperties.PathRule commonRule1 = new MaskingProperties.PathRule();
+        commonRule1.setJsonPath("pfmidata.rlno");
+        commonRule1.setMaskingType("type_rlno");
+
+        MaskingProperties.PathRule commonRule2 = new MaskingProperties.PathRule();
+        commonRule2.setJsonPath("pfminpt.rlno");
+        commonRule2.setMaskingType("type_rlno");
+
+        // mciId별 룰
+        MaskingProperties.PathRule specificRule = new MaskingProperties.PathRule();
+        specificRule.setJsonPath("MIMEIN_IN_MST.MIMEIN_IN.custNm");
+        specificRule.setMaskingType("type_name");
+
+        // common + specific 룰을 합친 리스트
+        List<MaskingProperties.PathRule> allRules = Arrays.asList(commonRule1, commonRule2, specificRule);
+
+        // 3. Mocking 설정: MaskingManager가 common + specific 룰을 반환하도록 설정
+        when(maskingManager.getMaskingRules(mciId)).thenReturn(allRules);
+
+        // 4. 테스트 대상 메소드 실행
+        maskingService.applyMasking(mciId, testData);
+
+        // 5. 결과 검증
+        // 5-1. common 룰이 적용되었는지 확인
+        Map<String, Object> pfmidataResult = (Map<String, Object>) testData.get("pfmidata");
+        assertThat(pfmidataResult.get("rlno")).isEqualTo("<Protected_Mci_Data>");
+
+        Map<String, Object> pfminptResult = (Map<String, Object>) testData.get("pfminpt");
+        assertThat(pfminptResult.get("rlno")).isEqualTo("<Protected_Mci_Data>");
+
+        // 5-2. mciId별 룰이 적용되었는지 확인
+        Map<String, Object> mimeinInResult = (Map<String, Object>) ((Map<String, Object>) testData.get("MIMEIN_IN_MST")).get("MIMEIN_IN");
+        assertThat(mimeinInResult.get("custNm")).isEqualTo("<Protected_Mci_Data>");
+    }
+
+    @Test
+    @DisplayName("common 룰만 존재하고 mciId별 룰이 없어도 정상 동작해야 한다")
+    void applyMasking_withOnlyCommonRules() {
+        // 1. common 필드만 포함한 테스트 데이터 생성
+        Map<String, Object> testData = new HashMap<>();
+
+        Map<String, Object> pfmidata = new HashMap<>();
+        pfmidata.put("rlno", "1234567890123");
+        pfmidata.put("otherField", "untouched");
+
+        testData.put("pfmidata", pfmidata);
+
+        // 2. common 룰만 준비
+        String mciId = "UNKNOWN_MCI_ID"; // 존재하지 않는 mciId
+
+        MaskingProperties.PathRule commonRule = new MaskingProperties.PathRule();
+        commonRule.setJsonPath("pfmidata.rlno");
+        commonRule.setMaskingType("type_rlno");
+
+        List<MaskingProperties.PathRule> rules = Arrays.asList(commonRule);
+
+        // 3. Mocking 설정: common 룰만 반환
+        when(maskingManager.getMaskingRules(mciId)).thenReturn(rules);
+
+        // 4. 테스트 대상 메소드 실행
+        maskingService.applyMasking(mciId, testData);
+
+        // 5. 결과 검증
+        Map<String, Object> pfmidataResult = (Map<String, Object>) testData.get("pfmidata");
+        assertThat(pfmidataResult.get("rlno")).isEqualTo("<Protected_Mci_Data>");
+        assertThat(pfmidataResult.get("otherField")).isEqualTo("untouched"); // 룰이 없는 필드는 그대로
+    }
 }
